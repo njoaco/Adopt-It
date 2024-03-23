@@ -2,6 +2,9 @@
 
 # dependencies
 node_modules/
+backend/ 
+
+#PARA COMPILAR LA APP BORRAR "BACKEND" DE ESTE ARCHIVO PARA EVITAR ERRORES!
 
 # Expo
 .expo/
