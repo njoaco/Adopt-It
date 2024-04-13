@@ -1,6 +1,6 @@
 # Adopt.It
 
-Adop.It es una plataforma interactiva diseñada para facilitar el proceso de adopción de mascotas. Utilizando tecnologías modernas como JavaScript, React, MySQL y Expo, esta aplicación móvil ofrece una interfaz amigable tanto para quienes desean encontrar un nuevo hogar para sus mascotas, como para aquellos que buscan adoptar.
+Adopt.It es una plataforma interactiva diseñada para facilitar el proceso de adopción de mascotas. Utilizando tecnologías modernas como JavaScript, React, MySQL y Expo, esta aplicación móvil ofrece una interfaz amigable tanto para quienes desean encontrar un nuevo hogar para sus mascotas, como para aquellos que buscan adoptar.
 
 ## Características
 
