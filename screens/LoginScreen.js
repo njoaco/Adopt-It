@@ -1,85 +1,88 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Button, Image, TextInput, Alert } from "react-native";
-
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { initializeApp } from 'firebase/app';
-import { firebaseConfig } from '../backend/firebase-config';
+import { View, Text, StyleSheet, Button, Image, TextInput, Alert } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';  // Importa axios para hacer solicitudes HTTP
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');  // Este campo parece no ser necesario para el login
   const [password, setPassword] = useState('');
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  
-  let byPassAccount = false;
-
-  const handleCreateAccount= () => {
-    createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredentil) =>{
-      console.log("Cuenta creada con exito!")
-      const user = userCredentil.user;
-      console.log(user)
-      Alert.alert("Cuenta creada con exito! Bienvenido ", email)
-      navigation.navigate('MyTabs');
+  const handleSignUp = () => {
+    // Función para manejar la creación de la cuenta
+    axios.post('http://192.168.1.5:3000/usuarios', {
+      nombre: username,
+      email: email,
+      password: password
     })
-    .catch(error =>{
-      console.log(error)
-      Alert.alert(error.message)
+    .then(response => {
+      Alert.alert("Éxito", "Usuario creado con éxito!");
+      AsyncStorage.setItem('userEmail', email)
+      .then(() => {
+        console.log('Email guardado', email);
+      })
+      .catch(error => {
+        console.log('Error al guardar el email', error);
+      });
+      navigation.navigate('MyTabs');  // Suponiendo que quieres navegar a 'MyTabs'
     })
-  }
+    .catch(error => {
+      console.error('Error!', error);
+      Alert.alert("Error", "No se pudo crear el usuario.");
+    });
+  };
 
-  const handleSignIn = () => {
-    signInWithEmailAndPassword(auth, email, password)
-    .then((userCredentil) =>{
-      console.log("Logeado!")
-      const user = userCredentil.user;
-      console.log(user)
-      Alert.alert("Bienvenido! ", email)
-      navigation.navigate('MyTabs');
+  const handleLogin = () => {
+    // Función para manejar el inicio de sesión
+    axios.post('http://192.168.1.5:3000/login', {
+      email: email,
+      password: password
     })
-    .catch(error =>{
-      console.log(error)
-      Alert.alert(error.message)
+    .then(response => {
+      Alert.alert("Éxito", "Inicio de sesión exitoso!");
+      AsyncStorage.setItem('userEmail', email)
+      .then(() => {
+        console.log('Email guardado', email);
+      })
+      .catch(error => {
+        console.log('Error al guardar el email', error);
+      });
+      navigation.navigate('MyTabs');  // Suponiendo que 'MyTabs' es tu pantalla de destino post-login
     })
-  }
+    .catch(error => {
+      console.error('Login Error', error);
+      Alert.alert("Error", "Credenciales incorrectas o problemas de conexión.");
+    });
+  };
 
-  //const LogIn = () =>{
-    // Aquí puedes agregar la lógica para verificar el nombre de usuario y la contraseña
-  //  setAccountLogged(true);
-  //  navigation.navigate('MyTabs'); // Navega a MyTabs en lugar de HomeScreen
-  //}
-
-  if ( byPassAccount !=  false){
-    navigation.navigate('MyTabs');
-  }
-  
   return (
     <View style={styles.container}>
       <Image source={require('../assets/images/login.gif')} style={styles.image} />
       <Text style={styles.text}>Inicie sesión para continuar</Text>
-      <Text></Text>
       <TextInput
         style={styles.input}
         onChangeText={setEmail}
         value={email}
-        placeholder="Correo electronico"
+        placeholder="Correo electrónico"
+        keyboardType="email-address"
+      />
+      <TextInput
+        style={styles.input}
+        onChangeText={setUsername} // Considerar remover si no es necesario para el login
+        value={username}
+        placeholder="Nombre de usuario" // Considerar remover si no es necesario para el login
       />
       <TextInput
         style={styles.input}
         onChangeText={setPassword}
         value={password}
         placeholder="Contraseña"
-        secureTextEntry
+        secureTextEntry={true}
       />
 
+      <Button title="Iniciar Sesión" onPress={handleLogin} />
       <Text></Text>
-      
-      <Button title="Iniciar Sesión" onPress={handleSignIn}  />
-
-      <Text></Text>
-
-      <Button title="Crear Cuenta" onPress={handleCreateAccount}  />
+      <Button title="Crear Cuenta" onPress={handleSignUp} />
     </View>
   );
 }
@@ -111,4 +114,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LoginScreen ;
+export default LoginScreen;

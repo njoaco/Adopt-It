@@ -1,61 +1,44 @@
-import React from "react";
-import { View, Text, StyleSheet, Image, ScrollView, TouchableOpacity, Switch, Button } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, Image, Button, Alert, TouchableOpacity, Switch} from "react-native";
+import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import { AccountLogged, setAccountLogged, Username, setUsername, Darkmode, setDarkmode } from "../variables_globales";
-import { email, setEmail } from './LoginScreen';
 
 const AccountScreen = () => {
     const navigation = useNavigation();
-    const [isDarkMode, setIsDarkMode] = React.useState(Darkmode);
-    let LogOutV;
+    const [username, setUsername] = useState('');
 
-    const LogOut = () => {
-        LogOutV = 1;
-        console.log("Sesión Cerrada", LogOutV );
-        alert ('Tu sesión ha sido cerrada correctamente.');
-        setAccountLogged(false);
-        navigation.navigate('LoginScreen'); // Navega a MyTabs en lugar de HomeScreen
-
-    }
-
-    React.useLayoutEffect(() => {
-        navigation.setOptions({
-            headerTitle: 'Adopt.It', // Establecer el título del header como "Adopt.It"
-            headerTitleAlign: 'center', // Centrar el título del header
-            headerTitleStyle: styles.headerTitle // Asignar el estilo de texto personalizado
-        });
-    }, [navigation]);
-
-    // Texto a mostrar dependiendo del valor de AccountLogged
-    const textToShow = AccountLogged ? "Cuenta iniciada" : "Iniciar sesión";
-    const textUsername = AccountLogged ? Username : null;
-
-    const handleRectPress = (index) => {
-        // Acción a realizar cuando se presiona un rectángulo
-        console.log("Rectángulo presionado:", index);
-    };
-
-    //const [isDarkMode, setIsDarkMode] = React.useState(false);
-
-    const toggleDarkMode = () => {
-        const newDarkMode = !isDarkMode;
-        setDarkmode(newDarkMode);
-        setIsDarkMode(newDarkMode);
-        if (newDarkMode) {
-            console.log("Modo oscuro activado", Darkmode);
-        } else {
-            console.log("Modo oscuro desactivado", );
-        }
-    };
+    useEffect(() => {
+        AsyncStorage.getItem('userEmail')
+            .then(userEmail => {
+                if (userEmail !== null) {
+                    axios.get(`http://192.168.1.5:3000/usuario?email=${encodeURIComponent(userEmail)}`)
+                        .then(response => {
+                            setUsername(response.data.username);  // Establece el nombre de usuario obtenido
+                        })
+                        .catch(error => {
+                            console.error('Error al recuperar los datos del usuario', error);
+                            Alert.alert("Error", "No se pudo recuperar la información del usuario.");
+                        });
+                } else {
+                    Alert.alert("Error", "No se encontró el email del usuario.");
+                }
+            })
+            .catch(error => {
+                console.error('Error al leer el email', error);
+                Alert.alert("Error", "Problema al acceder al almacenamiento local.");
+            });
+    }, []);
 
     return (
         //<ScrollView>
+        
             <View style={styles.container}>
                 <Image
                     source={require('../assets/images/DefaultProfilePicture.jpg')} // Reemplaza 'your_image.png' con la ruta de tu imagen
                     style={styles.image}
                 />
-                <Text style={styles.welcomeback}>Bienvenido de nuevo, {email} </Text>
+                <Text style={styles.welcomeback}>Bienvenido de nuevo, {username} </Text>
                 <Text style={styles.yourpets}>Tus Mascotas</Text>
                 <View style={styles.rectContainer}>
                     <TouchableOpacity onPress={() => handleRectPress(0)}>
@@ -74,11 +57,6 @@ const AccountScreen = () => {
                 <View style={styles.switchContainer}>
                     <Text style={styles.switchText}>Modo Oscuro</Text>
                     <Switch
-                        trackColor={{ false: "#767577", true: "#81b0ff" }}
-                        thumbColor={isDarkMode ? "#f5dd4b" : "#f4f3f4"}
-                        ios_backgroundColor="#3e3e3e"
-                        onValueChange={toggleDarkMode}
-                        value={isDarkMode}
                     />
                 </View>
                 
@@ -94,7 +72,7 @@ const AccountScreen = () => {
 
                 <Text></Text>
 
-                <Button title="Cerrar Sesion" onPress={LogOut} />
+                <Button title="Cerrar Sesion" />
 
                 <View>
                     
