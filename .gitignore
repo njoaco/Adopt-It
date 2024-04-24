@@ -3,6 +3,7 @@
 # dependencies
 node_modules/
 backend/
+backend/firebase-config.js
 
 #PARA COMPILAR LA APP BORRAR "BACKEND" DE ESTE ARCHIVO PARA EVITAR ERRORES!
 
