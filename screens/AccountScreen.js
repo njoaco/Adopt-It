@@ -14,7 +14,7 @@ const AccountScreen = () => {
                 if (userEmail !== null) {
                     axios.get(`http://192.168.1.5:3000/usuario?email=${encodeURIComponent(userEmail)}`)
                         .then(response => {
-                            setUsername(response.data.username);  // Establece el nombre de usuario obtenido
+                            setUsername(response.data.username);
                         })
                         .catch(error => {
                             console.error('Error al recuperar los datos del usuario', error);
@@ -35,7 +35,7 @@ const AccountScreen = () => {
         
             <View style={styles.container}>
                 <Image
-                    source={require('../assets/images/DefaultProfilePicture.jpg')} // Reemplaza 'your_image.png' con la ruta de tu imagen
+                    source={require('../assets/images/DefaultProfilePicture.jpg')}
                     style={styles.image}
                 />
                 <Text style={styles.welcomeback}>Bienvenido de nuevo, {username} </Text>
@@ -62,7 +62,7 @@ const AccountScreen = () => {
                 
                 {/* Agregar la imagen debajo del switch */}
                 <Image
-                    source={require('../assets/images/DefaultProfilePicture.jpg')} // Reemplaza 'your_image.png' con la ruta de tu imagen
+                    source={require('../assets/images/DefaultProfilePicture.jpg')} 
                     style={styles.image}
                 />
 
@@ -91,20 +91,20 @@ const AccountScreen = () => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 10, // Agrega un poco de espacio en la parte superior
-        paddingHorizontal: 20, // Ajusta el espaciado horizontal según sea necesario
-        //backgroundColor: Darkmode ? '#020202' : '#F3F3F3', // Cambia esto al color que prefieras
+        paddingTop: 10,
+        paddingHorizontal: 20,
+        //backgroundColor: Darkmode ? '#020202' : '#F3F3F3',
     },
     headerTitle: {
         fontFamily: 'DMSansBold',
         fontSize: 20,
     },
     image: {
-        width: 50, // Ajusta el ancho según sea necesario
-        height: 50, // Ajusta el alto según sea necesario
-        position: 'absolute', // Ajusta la posición a absoluta
-        top: 10, // Ajusta la posición verticalmente
-        left: 20, // Ajusta la posición horizontalmente
+        width: 50,
+        height: 50,
+        position: 'absolute', 
+        top: 10,
+        left: 20,
     },
     welcomeback: {
         fontFamily: 'DMSansBold',
@@ -117,20 +117,20 @@ const styles = StyleSheet.create({
         marginTop: 15,
     },
     rectContainer: {
-        flexDirection: 'row', // Alinear los rectángulos en una fila
-        marginTop: 10, // Espaciado superior
+        flexDirection: 'row',
+        marginTop: 10,
     },
     rect: {
-        width: 100, // Ancho de cada rectángulo
-        height: 140, // Altura de cada rectángulo
-        backgroundColor: 'gray', // Color del rectángulo
-        borderRadius: 10, // Bordes suaves
-        marginRight: 10, // Espacio entre rectángulos
+        width: 100,
+        height: 140,
+        backgroundColor: 'gray',
+        borderRadius: 10,
+        marginRight: 10,
     },
     switchContainer: {
-        flexDirection: 'row', // Alinear elementos en una fila
-        alignItems: 'center', // Alinear elementos verticalmente al centro
-        marginTop: 20, // Espaciado superior
+        flexDirection: 'row',
+        alignItems: 'center', 
+        marginTop: 20,
     },
     switchText: {
         fontFamily: 'DMSansRegular',

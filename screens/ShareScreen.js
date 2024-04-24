@@ -1,17 +1,67 @@
-import React, { useState, useContext } from "react";
-import { View, Text, StyleSheet, TextInput, Button, Image, ScrollView } from "react-native";
+import React, { useState, useContext, useEffect} from "react";
+import { View, Text, StyleSheet, TextInput, Button, Image, ScrollView, Alert} from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const ShareScreen = () => {
     const [petname, setPetname] = useState(""); 
     const [razaname, setRazaname] = useState(""); 
-    const [ubication, setUbication] = useState(""); 
+    const [ubication, setUbication] = useState("");
+    const [description, setDescription] = useState("");
+    const [publishBy, setPublishBy] = useState("");  
     const [image, setImage] = useState(); 
     const [isButtonDisabled, setIsButtonDisabled] = useState(false); 
     const [isButtonDisabledSend, setIsButtonDisabledSend] = useState(true); 
     const navigation = useNavigation();
     let fotoAvailable;
+
+    useEffect(() => {
+        AsyncStorage.getItem('userEmail')
+            .then(userEmail => {
+                if (userEmail !== null) {
+                    axios.get(`http://192.168.1.5:3000/usuario?email=${encodeURIComponent(userEmail)}`)
+                        .then(response => {
+                            setPublishBy(response.data.username); 
+                        })
+                        .catch(error => {
+                            console.error('Error al recuperar los datos del usuario', error);
+                            Alert.alert("Error", "No se pudo recuperar la información del usuario.");
+                        });
+                } else {
+                    Alert.alert("Error", "No se encontró el email del usuario.");
+                }
+            })
+            .catch(error => {
+                console.error('Error al leer el email', error);
+                Alert.alert("Error", "Problema al acceder al almacenamiento local.");
+            });
+    }, []);
+
+    const handleSubmit = () => {        
+        axios.post('http://192.168.1.5:3000/animales', {
+          nombre: petname,
+          raza: razaname,
+          ubicacion: ubication,
+          descripcion: description,
+          publishBy: publishBy,
+        })
+        .then(response => {
+          Alert.alert("Éxito", "Animal agregado!");
+          setPetname("");
+          setRazaname("");
+          setUbication("");
+          setDescription("");
+          setImage(null);
+          setIsButtonDisabled(false);
+          setIsButtonDisabledSend(true);
+        })
+        .catch(error => {
+          console.error('Error!', error);
+          Alert.alert("Error", "No se pudo crear el animal.");
+        });
+      };
 
     React.useLayoutEffect(() => {
         navigation.setOptions({
@@ -31,6 +81,10 @@ const ShareScreen = () => {
 
     const handleUbicationChange = (text) => {
         setUbication(text); 
+    };
+
+    const handleDescriptionChange = (text) => {
+        setDescription(text); 
     };
 
     const pickImage = async () => {
@@ -67,47 +121,11 @@ const ShareScreen = () => {
         });
 
         if (!result.cancelled) {
-            fotoAvailable = 1;
-            console.log("Imagen subida correctamente", fotoAvailable);
-            setImage(result.uri);
-            setIsButtonDisabled(true);
-            setIsButtonDisabledSend(false);
-        }
-
-        if (result.cancelled) {
-            fotoAvailable = 0;
-            console.log("Imagen Cancelada", fotoAvailable);
-            setImage(result.uri);
-            setIsButtonDisabled(true);
-            setIsButtonDisabledSend(false);
-        }
-    };
-
-    const handleSubmit = () => {
-        console.log("Nombre del animal:", petname);
-        console.log("Raza:", razaname);
-        console.log("Ubicación:", ubication);
-        console.log("Imagen:", image);
-        console.log("FotoAvailable:", fotoAvailable);
-    
-        if (petname && razaname && ubication && fotoAvailable != 0) {
-            navigation.navigate('HomeScreen', {
-                petname: petname,
-                razaname: razaname,
-                ubication: ubication,
-                image: image
-            });
-    
-            setPetname("");
-            setRazaname("");
-            setUbication("");
-            setImage(null);
             setIsButtonDisabled(false);
-            setIsButtonDisabledSend(true);
-            alert("Tu mascota ha sido compartida!");
-            //fotoAvailable = 0;
+            setIsButtonDisabledSend(false);
         } else {
-            alert("Por favor completa todos los campos y carga una imagen antes de enviar.");
+            setIsButtonDisabled(true);
+            setIsButtonDisabledSend(true);
         }
     };
 
@@ -144,6 +162,14 @@ const ShareScreen = () => {
             placeholder=""
             onChangeText={handleUbicationChange}
             value={ubication}
+          />
+
+          <Text style={styles.titles}>Descripcion</Text>
+          <TextInput
+            style={styles.input}
+            placeholder=""
+            onChangeText={handleDescriptionChange}
+            value={description}
           />
       
           <Button title="Seleccionar Foto" onPress={pickImage} disabled={isButtonDisabled} />
