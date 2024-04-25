@@ -1,9 +1,10 @@
 import React, { useState, useContext, useEffect} from "react";
-import { View, Text, StyleSheet, TextInput, Button, Image, ScrollView, Alert} from "react-native";
+import { View, Text, StyleSheet, TextInput, Button, Image, ScrollView, Alert, TouchableOpacity} from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
+import axios from 'axios';  // Importa axios para hacer solicitudes HTTP
+import * as FileSystem from 'expo-file-system';
 
 const ShareScreen = () => {
     const [petname, setPetname] = useState(""); 
@@ -21,9 +22,10 @@ const ShareScreen = () => {
         AsyncStorage.getItem('userEmail')
             .then(userEmail => {
                 if (userEmail !== null) {
-                    axios.get(`http://192.168.1.5:3000/usuario?email=${encodeURIComponent(userEmail)}`)
+                    axios.get(`http://192.168.1.5:3000/user?email=${encodeURIComponent(userEmail)}`)
                         .then(response => {
                             setPublishBy(response.data.username); 
+                            console.log('Usuario cargado');
                         })
                         .catch(error => {
                             console.error('Error al recuperar los datos del usuario', error);
@@ -39,29 +41,36 @@ const ShareScreen = () => {
             });
     }, []);
 
-    const handleSubmit = () => {        
-        axios.post('http://192.168.1.5:3000/animales', {
-          nombre: petname,
-          raza: razaname,
-          ubicacion: ubication,
-          descripcion: description,
-          publishBy: publishBy,
-        })
-        .then(response => {
-          Alert.alert("Éxito", "Animal agregado!");
-          setPetname("");
-          setRazaname("");
-          setUbication("");
-          setDescription("");
-          setImage(null);
-          setIsButtonDisabled(false);
-          setIsButtonDisabledSend(true);
-        })
-        .catch(error => {
-          console.error('Error!', error);
-          Alert.alert("Error", "No se pudo crear el animal.");
-        });
+
+    const handleImageSave = () => {        
+        axios.post('http://192.168.1.5:3000/animals', {
+            name: petname,
+            race: razaname,
+            location: ubication,
+            description: description,
+            publishBy: publishBy,
+            image: image
+          })
+          .then(response => {
+            Alert.alert("Éxito", "Mascota subida!");
+            //resetForm();
+          })
+          .catch(error => {
+            console.error('Error!', error);
+            Alert.alert("Error", "No se pudo subir la mascota.");
+          });
+        };
+    
+      const resetForm = () => {
+        setPetname("");
+        setRazaname("");
+        setUbication("");
+        setDescription("");
+        setImage(null);
+        setIsButtonDisabled(false);
+        setIsButtonDisabledSend(true);
       };
+    
 
     React.useLayoutEffect(() => {
         navigation.setOptions({
@@ -94,33 +103,10 @@ const ShareScreen = () => {
             aspect: [4, 3],
             quality: 1,
         });
-
-        if (!result.cancelled) {
-            fotoAvailable = 1;
-            console.log("Imagen subida correctamente", fotoAvailable);
-            setImage(result.uri);
-            setIsButtonDisabled(true);
-            setIsButtonDisabledSend(false);
-        }
-
-        if (result.cancelled) {
-            fotoAvailable = 0;
-            console.log("Imagen Cancelada", fotoAvailable);
-            setImage(result.uri);
-            setIsButtonDisabled(true);
-            setIsButtonDisabledSend(false);
-        }
-    };
-
-    const camera = async () => {
-        let result = await ImagePicker.launchCameraAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: true,
-            aspect: [4, 3],
-            quality: 1,
-        });
-
-        if (!result.cancelled) {
+    
+        if (!result.cancelled && result.assets) {
+            console.log("Imagen seleccionada URI: ", result.assets[0].uri); //
+            setImage(result.assets[0].uri);
             setIsButtonDisabled(false);
             setIsButtonDisabledSend(false);
         } else {
@@ -128,13 +114,33 @@ const ShareScreen = () => {
             setIsButtonDisabledSend(true);
         }
     };
+    
+    const camera = async () => {
+        let result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [4, 3],
+            quality: 1,
+        });
+    
+        if (!result.cancelled && result.assets) {
+            console.log("Imagen capturada URI: ", result.assets[0].uri); // Acceder al primer objeto en assets
+            setImage(result.assets[0].uri);
+            setIsButtonDisabled(false);
+            setIsButtonDisabledSend(false);
+        } else {
+            setIsButtonDisabled(true);
+            setIsButtonDisabledSend(true);
+        }
+    };
+    
 
     return (
-    //<ScrollView>     
+    <ScrollView>     
         <View style={styles.container}>
       
 
-      <Text style={styles.welcomeText}>Comparte tu mascota!</Text>
+      <Text className="p-8" style={styles.welcomeText}>Comparte tu mascota!</Text>
 
           <Text></Text>
 
@@ -142,7 +148,7 @@ const ShareScreen = () => {
       
           <Text style={styles.titles}>Nombre del animal</Text>
           <TextInput
-            style={styles.input}
+            className="input w-3/4 bg-gray-100 rounded-lg p-1 my-2 border border-gray-300"
             placeholder=""
             onChangeText={handlePetnameChange}
             value={petname}
@@ -150,7 +156,7 @@ const ShareScreen = () => {
       
           <Text style={styles.titles}>Raza</Text>
           <TextInput
-            style={styles.input}
+            className="input w-3/4 bg-gray-100 rounded-lg p-1 my-2 border border-gray-300"
             placeholder=""
             onChangeText={handleRazanameChange}
             value={razaname}
@@ -158,34 +164,36 @@ const ShareScreen = () => {
       
           <Text style={styles.titles}>Ubicación</Text>
           <TextInput
-            style={styles.input}
+            className="input w-3/4 bg-gray-100 rounded-lg p-1 my-2 border border-gray-300"
             placeholder=""
             onChangeText={handleUbicationChange}
             value={ubication}
           />
 
-          <Text style={styles.titles}>Descripcion</Text>
+          <Text style={styles.titles}>Descripción</Text>
           <TextInput
-            style={styles.input}
+            className="input w-3/4 bg-gray-100 rounded-lg p-1 my-2 border border-gray-300"
             placeholder=""
             onChangeText={handleDescriptionChange}
             value={description}
           />
       
-          <Button title="Seleccionar Foto" onPress={pickImage} disabled={isButtonDisabled} />
+        <TouchableOpacity className="bg-gray-600 py-3 px-4 rounded-lg mt-4 w-3/5 items-center" onPress={pickImage} disabled={isButtonDisabled}>
+            <Text className="text-white font-bold">Seleccionar Foto</Text>
+        </TouchableOpacity>
       
-          <Text></Text>
-      
-          <Button title="Sacar Foto" onPress={camera} disabled={isButtonDisabled} />
+        <TouchableOpacity className="bg-gray-600 py-3 px-4 rounded-lg mt-4 w-3/5 items-center" onPress={camera} disabled={isButtonDisabled}>
+            <Text className="text-white font-bold">Camara</Text>
+         </TouchableOpacity>
       
           {image && <Image source={{ uri: image }} style={{ width: 200, height: 200 }} />}
       
-          <Text></Text>
-      
-          <Button title="Enviar" onPress={handleSubmit} disabled={isButtonDisabledSend}  />
+          <TouchableOpacity className="bg-gray-600 py-3 px-4 rounded-lg mt-4 w-3/5 items-center" onPress={handleImageSave} disabled={isButtonDisabledSend}>
+            <Text className="text-white font-bold">Enviar</Text>
+         </TouchableOpacity>
       
         </View>
-    //</ScrollView> 
+    </ScrollView> 
       );
 }
 
@@ -212,7 +220,7 @@ const styles = StyleSheet.create({
     titles: {
         fontFamily: 'DMSansBold',
         fontSize: 15,
-        marginBottom: 8
+        //marginBottom: 8
     },
     input: {
         width: "80%",

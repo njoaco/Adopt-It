@@ -1,17 +1,26 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, Button, Image, TextInput, Alert } from "react-native";
+import {
+  View,
+  Text,
+  Image,
+  TextInput,
+  Alert,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform
+} from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';  // Importa axios para hacer solicitudes HTTP
+import axios from 'axios';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
-  const [username, setUsername] = useState('');  // Este campo parece no ser necesario para el login
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
   const handleSignUp = () => {
-    // Función para manejar la creación de la cuenta
-    axios.post('http://192.168.1.5:3000/usuarios', {
-      nombre: username,
+    axios.post('http://192.168.1.5:3000/users', {
+      username: username,
       email: email,
       password: password
     })
@@ -24,7 +33,7 @@ const LoginScreen = ({ navigation }) => {
       .catch(error => {
         console.log('Error al guardar el email', error);
       });
-      navigation.navigate('MyTabs');  // Suponiendo que quieres navegar a 'MyTabs'
+      navigation.navigate('MyTabs');
     })
     .catch(error => {
       console.error('Error!', error);
@@ -33,7 +42,6 @@ const LoginScreen = ({ navigation }) => {
   };
 
   const handleLogin = () => {
-    // Función para manejar el inicio de sesión
     axios.post('http://192.168.1.5:3000/login', {
       email: email,
       password: password
@@ -47,7 +55,7 @@ const LoginScreen = ({ navigation }) => {
       .catch(error => {
         console.log('Error al guardar el email', error);
       });
-      navigation.navigate('MyTabs');  // Suponiendo que 'MyTabs' es tu pantalla de destino post-login
+      navigation.navigate('MyTabs');
     })
     .catch(error => {
       console.error('Login Error', error);
@@ -56,61 +64,53 @@ const LoginScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Image source={require('../assets/images/login.gif')} style={styles.image} />
-      <Text style={styles.text}>Inicie sesión para continuar</Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={setEmail}
-        value={email}
-        placeholder="Correo electrónico"
-        keyboardType="email-address"
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setUsername} // Considerar remover si no es necesario para el login
-        value={username}
-        placeholder="Nombre de usuario" // Considerar remover si no es necesario para el login
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setPassword}
-        value={password}
-        placeholder="Contraseña"
-        secureTextEntry={true}
-      />
-
-      <Button title="Iniciar Sesión" onPress={handleLogin} />
-      <Text></Text>
-      <Button title="Crear Cuenta" onPress={handleSignUp} />
-    </View>
+    <KeyboardAvoidingView 
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 items-center justify-center bg-white">
+          <Image source={require('../assets/images/login.gif')} style={styles.image} />
+          <Text className="text-lg font-bold mt-[-90px]">Inicie sesión para continuar</Text>
+          <TextInput
+            className="input w-3/4 bg-gray-100 rounded-lg p-3 my-2 border border-gray-300"
+            onChangeText={setEmail}
+            value={email}
+            placeholder="Correo electrónico"
+            keyboardType="email-address"
+          />
+          <TextInput
+            className="input w-3/4 bg-gray-100 rounded-lg p-3 my-2 border border-gray-300"
+            onChangeText={setUsername}
+            value={username}
+            placeholder="Nombre de usuario"
+          />
+          <TextInput
+            className="input w-3/4 bg-gray-100 rounded-lg p-3 my-2 border border-gray-300"
+            onChangeText={setPassword}
+            value={password}
+            placeholder="Contraseña"
+            secureTextEntry={true}
+          />
+          <TouchableOpacity className="bg-gray-600 py-3 px-4 rounded-lg mt-4 w-3/5 items-center" onPress={handleLogin}>
+            <Text className="text-white font-bold">Iniciar Sesión</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="bg-gray-600 py-3 px-4 rounded-lg mt-4 w-3/5 items-center" onPress={handleSignUp}>
+            <Text className="text-white font-bold">Crear Cuenta</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   image: {
     width: 400,
     height: 400,
     resizeMode: 'contain',
     marginTop: -100,
-  },
-  text: {
-    fontFamily: 'DMSansBold',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: -90,
-  },
-  input: {
-    height: 40,
-    width: 200,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
   },
 });
 
