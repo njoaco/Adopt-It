@@ -17,3 +17,46 @@ Adopt.It es una plataforma interactiva diseñada para facilitar el proceso de ad
 - **Base de Datos:** MySQL para almacenamiento de datos de usuarios y mascotas.
 - **Plataforma de Desarrollo Móvil:** Expo para asegurar compatibilidad cruzada en dispositivos iOS y Android.
 
+## Cómo Contribuir
+
+
+1. **Fork el Repositorio**
+   - Haz un 'fork' del repositorio para tener tu propia copia. Puedes hacer esto desde la página principal del repositorio en GitHub.
+
+2. **Clona tu Fork**
+   - Clona tu fork a tu máquina local para comenzar a trabajar en las mejoras. Puedes hacerlo usando:
+     ```bash
+     git clone https://github.com/tu-usuario/Adopt.It.git
+     cd Adopt.It
+     ```
+
+3. **Crea una Rama**
+   - Antes de realizar cambios, crea una rama donde trabajarás en tu mejora o corrección:
+     ```bash
+     git checkout -b nombre-de-tu-rama
+     ```
+
+4. **Realiza tus Cambios**
+   - Modifica o añade al código como sea necesario para implementar tu funcionalidad o corrección.
+
+5. **Ejecuta Pruebas**
+   - Asegúrate de que tu código funcione correctamente y de que no rompa ninguna funcionalidad existente.
+
+6. **Commit tus Cambios**
+   - Haz commit de tus cambios en tu rama. Asegúrate de escribir un mensaje de commit claro y descriptivo:
+     ```bash
+     git commit -am 'Añade una nueva funcionalidad'
+     ```
+
+7. **Push a GitHub**
+   - Sube tus cambios a GitHub:
+     ```bash
+     git push origin nombre-de-tu-rama
+     ```
+
+8. **Crea un Pull Request**
+   - Ve a la página de GitHub del repositorio original y crea un pull request desde tu rama a la rama principal del repositorio original. Asegúrate de describir los cambios realizados y cualquier otra información relevante.
+
+## Reportar Problemas
+
+Si encuentras problemas o tienes sugerencias de mejoras, por favor reporta esto utilizando el sistema de 'issues' de GitHub. Intenta describir el problema o la sugerencia de la forma más detallada posible, y etiqueta tu issue adecuadamente.
