@@ -1,114 +1,117 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Button, Image, TextInput, Alert } from "react-native";
-
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
-import { initializeApp } from 'firebase/app';
-import { firebaseConfig } from '../backend/firebase-config';
+import {
+  View,
+  Text,
+  Image,
+  TextInput,
+  Alert,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  ScrollView,
+  Platform
+} from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const LoginScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const app = initializeApp(firebaseConfig);
-  const auth = getAuth(app);
-  
-  let byPassAccount = false;
-
-  const handleCreateAccount= () => {
-    createUserWithEmailAndPassword(auth, email, password)
-    .then((userCredentil) =>{
-      console.log("Cuenta creada con exito!")
-      const user = userCredentil.user;
-      console.log(user)
-      Alert.alert("Cuenta creada con exito! Bienvenido ", email)
+  const handleSignUp = () => {
+    axios.post('http://192.168.1.5:3000/users', {
+      username: username,
+      email: email,
+      password: password
+    })
+    .then(response => {
+      Alert.alert("Éxito", "Usuario creado con éxito!");
+      AsyncStorage.setItem('userEmail', email)
+      .then(() => {
+        console.log('Email guardado', email);
+      })
+      .catch(error => {
+        console.log('Error al guardar el email', error);
+      });
       navigation.navigate('MyTabs');
     })
-    .catch(error =>{
-      console.log(error)
-      Alert.alert(error.message)
-    })
-  }
+    .catch(error => {
+      console.error('Error!', error);
+      Alert.alert("Error", "No se pudo crear el usuario.");
+    });
+  };
 
-  const handleSignIn = () => {
-    signInWithEmailAndPassword(auth, email, password)
-    .then((userCredentil) =>{
-      console.log("Logeado!")
-      const user = userCredentil.user;
-      console.log(user)
-      Alert.alert("Bienvenido! ", email)
+  const handleLogin = () => {
+    axios.post('http://192.168.1.5:3000/login', {
+      email: email,
+      password: password
+    })
+    .then(response => {
+      Alert.alert("Éxito", "Inicio de sesión exitoso!");
+      AsyncStorage.setItem('userEmail', email)
+      .then(() => {
+        console.log('Email guardado', email);
+      })
+      .catch(error => {
+        console.log('Error al guardar el email', error);
+      });
       navigation.navigate('MyTabs');
     })
-    .catch(error =>{
-      console.log(error)
-      Alert.alert(error.message)
-    })
-  }
+    .catch(error => {
+      console.error('Login Error', error);
+      Alert.alert("Error", "Credenciales incorrectas o problemas de conexión.");
+    });
+  };
 
-  //const LogIn = () =>{
-    // Aquí puedes agregar la lógica para verificar el nombre de usuario y la contraseña
-  //  setAccountLogged(true);
-  //  navigation.navigate('MyTabs'); // Navega a MyTabs en lugar de HomeScreen
-  //}
-
-  if ( byPassAccount !=  false){
-    navigation.navigate('MyTabs');
-  }
-  
   return (
-    <View style={styles.container}>
-      <Image source={require('../assets/images/login.gif')} style={styles.image} />
-      <Text style={styles.text}>Inicie sesión para continuar</Text>
-      <Text></Text>
-      <TextInput
-        style={styles.input}
-        onChangeText={setEmail}
-        value={email}
-        placeholder="Correo electronico"
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setPassword}
-        value={password}
-        placeholder="Contraseña"
-        secureTextEntry
-      />
-
-      <Text></Text>
-      
-      <Button title="Iniciar Sesión" onPress={handleSignIn}  />
-
-      <Text></Text>
-
-      <Button title="Crear Cuenta" onPress={handleCreateAccount}  />
-    </View>
+    <KeyboardAvoidingView 
+      style={{ flex: 1 }}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+    >
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+        <View className="flex-1 items-center justify-center bg-white">
+          <Image source={require('../assets/images/login.gif')} style={styles.image} />
+          <Text className="text-lg font-bold mt-[-90px]">Inicie sesión para continuar</Text>
+          <TextInput
+            className="input w-3/4 bg-gray-100 rounded-lg p-3 my-2 border border-gray-300"
+            onChangeText={setEmail}
+            value={email}
+            placeholder="Correo electrónico"
+            keyboardType="email-address"
+          />
+          <TextInput
+            className="input w-3/4 bg-gray-100 rounded-lg p-3 my-2 border border-gray-300"
+            onChangeText={setUsername}
+            value={username}
+            placeholder="Nombre de usuario"
+          />
+          <TextInput
+            className="input w-3/4 bg-gray-100 rounded-lg p-3 my-2 border border-gray-300"
+            onChangeText={setPassword}
+            value={password}
+            placeholder="Contraseña"
+            secureTextEntry={true}
+          />
+          <TouchableOpacity className="bg-gray-600 py-3 px-4 rounded-lg mt-4 w-3/5 items-center" onPress={handleLogin}>
+            <Text className="text-white font-bold">Iniciar Sesión</Text>
+          </TouchableOpacity>
+          <TouchableOpacity className="bg-gray-600 py-3 px-4 rounded-lg mt-4 w-3/5 items-center" onPress={handleSignUp}>
+            <Text className="text-white font-bold">Crear Cuenta</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   image: {
     width: 400,
     height: 400,
     resizeMode: 'contain',
     marginTop: -100,
   },
-  text: {
-    fontFamily: 'DMSansBold',
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginTop: -90,
-  },
-  input: {
-    height: 40,
-    width: 200,
-    margin: 12,
-    borderWidth: 1,
-    padding: 10,
-  },
 });
 
-export default LoginScreen ;
+export default LoginScreen;
