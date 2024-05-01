@@ -1,4 +1,3 @@
-import 'react-native-gesture-handler';
 import React, { useEffect, useState } from "react";
 import Navigation from "./Navigation";
 import { View } from 'react-native';
@@ -29,6 +28,7 @@ export default function App() {
   if (!fontsLoaded) {
     return null;
   }
+
 
   return (
     <View style={{ flex: 1 }}>

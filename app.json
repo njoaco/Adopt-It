@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "AdoptIt_Project",
-    "slug": "AdoptIt_Project",
+    "name": "adoptit_project",
+    "slug": "adoptit_project",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
