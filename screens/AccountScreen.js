@@ -11,6 +11,7 @@ const AccountScreen = () => {
     const [age, setAge] = useState([]);
     const [location, setLocation] = useState([]);
     const [description, setDescription] = useState([]);
+    const [animalIds, setAnimalIds] = useState([]);
 
     useEffect(() => {
         AsyncStorage.getItem('userEmail')
@@ -24,15 +25,17 @@ const AccountScreen = () => {
                             console.error('Error al recuperar los datos del usuario', error);
                             Alert.alert("Error", "No se pudo recuperar la información del usuario.");
                         });
-
-                    axios.get('http://192.168.1.5:3000/animals')
+    
+                    axios.get(`http://192.168.1.5:3000/animals/byPublisher?publisherEmail=${encodeURIComponent(userEmail)}`)
                         .then(response => {
-                            setImages(response.data.map(item => item.image)); 
-                            setPetNames(response.data.map(item => item.name)); 
-                            setRace(response.data.map(item => item.race));
-                            setAge(response.data.map(item => item.age));
-                            setLocation(response.data.map(item => item.location));
-                            setDescription(response.data.map(item => item.description));
+                            const animalsData = response.data;
+                            setImages(animalsData.map(item => item.image));
+                            setPetNames(animalsData.map(item => item.name));
+                            setRace(animalsData.map(item => item.race));
+                            setAge(animalsData.map(item => item.age));
+                            setLocation(animalsData.map(item => item.location));
+                            setDescription(animalsData.map(item => item.description));
+                            setAnimalIds(animalsData.map(item => item.id));
                         })
                         .catch(error => {
                             console.error('Error al cargar las imágenes', error);
@@ -47,11 +50,26 @@ const AccountScreen = () => {
                 Alert.alert("Error", "Problema al acceder al almacenamiento local.");
             });
     }, []);
-
+    
     const deleteAnimal = (index) => {
-        
+        const animalId = animalIds[index]; 
+        axios.delete(`http://192.168.1.5:3000/animals/${animalId}`)
+            .then(response => {
+                Alert.alert("Éxito", "Animal eliminado correctamente");
+                setImages(prev => prev.filter((_, i) => i !== index));
+                setPetNames(prev => prev.filter((_, i) => i !== index));
+                setRace(prev => prev.filter((_, i) => i !== index));
+                setAge(prev => prev.filter((_, i) => i !== index));
+                setLocation(prev => prev.filter((_, i) => i !== index));
+                setDescription(prev => prev.filter((_, i) => i !== index));
+                setAnimalIds(prev => prev.filter((_, i) => i !== index));
+            })
+            .catch(error => {
+                console.error('Error al eliminar el animal', error);
+                Alert.alert("Error", "No se pudo eliminar el animal");
+            });
     };
-
+    
     return (
         <View style={styles.container}>
             <Image
