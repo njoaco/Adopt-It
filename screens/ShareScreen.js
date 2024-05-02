@@ -1,10 +1,9 @@
-import React, { useState, useContext, useEffect} from "react";
-import { View, Text, StyleSheet, TextInput, Button, Image, ScrollView, Alert, TouchableOpacity} from "react-native";
+import React, { useState, useEffect} from "react";
+import { View, Text, StyleSheet, TextInput, Image, ScrollView, Alert, TouchableOpacity} from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';  // Importa axios para hacer solicitudes HTTP
-import * as FileSystem from 'expo-file-system';
+import axios from 'axios'; 
 
 const ShareScreen = () => {
     const [petname, setPetname] = useState(""); 
@@ -12,11 +11,11 @@ const ShareScreen = () => {
     const [ubication, setUbication] = useState("");
     const [description, setDescription] = useState("");
     const [publishBy, setPublishBy] = useState("");  
-    const [image, setImage] = useState(); 
+    const [image, setImage] = useState();
+    const [age, setAge] = useState(""); 
     const [isButtonDisabled, setIsButtonDisabled] = useState(false); 
     const [isButtonDisabledSend, setIsButtonDisabledSend] = useState(true); 
     const navigation = useNavigation();
-    let fotoAvailable;
 
     useEffect(() => {
         AsyncStorage.getItem('userEmail')
@@ -46,6 +45,7 @@ const ShareScreen = () => {
         axios.post('http://192.168.1.5:3000/animals', {
             name: petname,
             race: razaname,
+            age: age,
             location: ubication,
             description: description,
             publishBy: publishBy,
@@ -53,7 +53,7 @@ const ShareScreen = () => {
           })
           .then(response => {
             Alert.alert("Éxito", "Mascota subida!");
-            //resetForm();
+            resetForm();
           })
           .catch(error => {
             console.error('Error!', error);
@@ -66,6 +66,7 @@ const ShareScreen = () => {
         setRazaname("");
         setUbication("");
         setDescription("");
+        setAge(null);
         setImage(null);
         setIsButtonDisabled(false);
         setIsButtonDisabledSend(true);
@@ -94,6 +95,13 @@ const ShareScreen = () => {
 
     const handleDescriptionChange = (text) => {
         setDescription(text); 
+    };
+
+    const handleAgeChange = (text) => {
+        const newAge = text.replace(/[^0-9]/g, '');
+        if (newAge === '' || (parseInt(newAge) > 0 && parseInt(newAge) < 100)) {
+            setAge(newAge);
+        }
     };
 
     const pickImage = async () => {
@@ -161,6 +169,15 @@ const ShareScreen = () => {
             onChangeText={handleRazanameChange}
             value={razaname}
           />
+
+            <Text style={styles.titles}>Edad</Text>
+            <TextInput
+                className="input w-3/4 bg-gray-100 rounded-lg p-1 my-2 border border-gray-300"
+                keyboardType="number-pad"
+                maxLength={2}
+                onChangeText={handleAgeChange}
+                value={age}
+            />
       
           <Text style={styles.titles}>Ubicación</Text>
           <TextInput
