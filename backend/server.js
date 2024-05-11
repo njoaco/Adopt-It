@@ -1,4 +1,4 @@
-const serverData = require('./server_data');
+const serverData = require('./server_data'); //server_data no incluido en el repositorio
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
