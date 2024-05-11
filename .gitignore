@@ -2,7 +2,8 @@
 
 # dependencies
 node_modules/
-backend/*
+backend/node_modules/
+backend/server_data.js
 
 #PARA COMPILAR LA APP BORRAR "BACKEND" DE ESTE ARCHIVO PARA EVITAR ERRORES!
 
