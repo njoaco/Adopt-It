@@ -1,8 +1,12 @@
 const serverData = require('./server_data'); //server_data no incluido en el repositorio
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+const multer = require('multer');
+const multerS3 = require('multer-s3');
 const express = require('express');
 const mysql = require('mysql');
 const cors = require('cors');
 const bcrypt = require('bcryptjs');
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
 
 const app = express();
 const port = serverData.l_port
@@ -23,6 +27,25 @@ db.connect(err => {
         return;
     }
     console.log('connected as id ' + db.threadId);
+});
+
+const s3 = new S3Client({
+    region: serverData.region,
+    credentials: {
+        accessKeyId: serverData.accessKeyId,
+        secretAccessKey: serverData.secretAccessKey
+    }
+});
+
+const upload = multer({
+    storage: multerS3({
+        s3: s3,
+        bucket: serverData.bucket,
+        //acl: 'public-read',
+        key: function (req, file, cb) {
+            cb(null, `images/${Date.now().toString()}_${file.originalname}`);
+        }
+    })
 });
 
 {/* API RESTful USERS */}{
@@ -100,6 +123,15 @@ db.connect(err => {
             }
             res.status(201).send('Mascota agregada');
         });
+    });
+
+    app.post('/upload', upload.single('file'), (req, res) => {
+        if (req.file) {
+            res.status(201).send({ imageUrl: req.file.location });
+        } else {
+            console.error("Error en la subida de archivos:", req.file);
+            res.status(500).send("Error al subir el archivo.");
+        }
     });
 
     app.get('/animals', (req, res) => {

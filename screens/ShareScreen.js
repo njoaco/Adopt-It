@@ -40,8 +40,15 @@ const ShareScreen = () => {
             });
     }, []);
 
-
-    const handleImageSave = () => {        
+    const handleImageSave = async () => {
+        // Primero, subir la imagen a S3 y obtener la URL
+        const uploadedImageUrl = await uploadImage();
+        if (!uploadedImageUrl) {
+            Alert.alert("Error", "No se pudo subir la imagen a S3");
+            return; // Detener la ejecución si la subida de la imagen falla
+        }
+    
+        // Si la imagen se sube con éxito, proceder a enviar los detalles del animal
         axios.post('http://192.168.1.5:3000/animals', {
             name: petname,
             race: razaname,
@@ -49,17 +56,18 @@ const ShareScreen = () => {
             location: ubication,
             description: description,
             publishBy: publishBy,
-            image: image
-          })
-          .then(response => {
-            Alert.alert("Éxito", "Mascota subida!");
+            image: uploadedImageUrl  // URL de la imagen almacenada en S3
+        })
+        .then(response => {
+            Alert.alert("Exito", "Mascota subida!");
             resetForm();
-          })
-          .catch(error => {
-            console.error('Error!', error);
-            Alert.alert("Error", "No se pudo subir la mascota.");
-          });
-        };
+        })
+        .catch(error => {
+            console.error('Error saving pet data:', error);
+            Alert.alert("Error", "Failed to upload pet.");
+        });
+    };
+    
     
       const resetForm = () => {
         setPetname("");
@@ -142,6 +150,42 @@ const ShareScreen = () => {
         }
     };
     
+    const uploadImage = async () => {
+        if (!image) {
+            Alert.alert("Error", "No image selected");
+            return null;
+        }
+
+        const uriParts = image.split('.');
+        const fileType = uriParts[uriParts.length - 1];
+
+        const formData = new FormData();
+        formData.append('file', {
+            uri: image,
+            name: `photo.${fileType}`,
+            type: `image/${fileType}`,
+        });
+
+        try {
+            const response = await axios.post('http://192.168.1.5:3000/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.status === 201) {
+                return response.data.imageUrl; // This is the URL of the image stored on S3
+            } else {
+                console.error('Upload failed');
+                Alert.alert("Error", "Failed to upload image");
+                return null;
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            Alert.alert("Error", "An error occurred while uploading image");
+            return null;
+        }
+    };
 
     return (
     <ScrollView>     
