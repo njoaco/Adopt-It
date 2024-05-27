@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Dimensions, Image, Animated, PanResponder, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 const aspectRatio = 2 / 3; // Por ejemplo, 2:3
@@ -12,14 +13,30 @@ const Pets = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const position = new Animated.ValueXY();
 
+  // Función de barajado (Fisher-Yates)
+  const shuffleArray = (array) => {
+    for (let i = array.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+  };
+
   useEffect(() => {
-    // Fetch animals from the server
     const fetchAnimals = async () => {
       try {
-        const response = await axios.get('http://192.168.1.5:3000/animals'); // Ajusta la URL según tus datos
-        setAnimals(response.data);
+        const userEmail = await AsyncStorage.getItem('userEmail');
+        if (userEmail !== null) {
+          const response = await axios.get('http://192.168.1.5:3000/animals');
+          const filteredAnimals = response.data.filter(animal => animal.publishBy !== userEmail);
+          const shuffledAnimals = shuffleArray(filteredAnimals); // Barajar la lista de animales
+          setAnimals(shuffledAnimals);
+        } else {
+          Alert.alert("Error", "No se encontró el email del usuario.");
+        }
       } catch (error) {
         console.error('Error fetching animals:', error);
+        Alert.alert("Error", "No se pudieron cargar los animales.");
       }
     };
 
