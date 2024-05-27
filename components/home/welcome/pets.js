@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, Dimensions, Image, Animated, PanResponder, Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StyleSheet, Text, View, Dimensions, Image, Animated, PanResponder, Platform, Alert } from 'react-native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Audio } from 'expo-av';
 
 const aspectRatio = 2 / 3; // Por ejemplo, 2:3
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -12,6 +13,8 @@ const Pets = () => {
   const [animals, setAnimals] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const position = new Animated.ValueXY();
+  const [likeSound, setLikeSound] = useState(null);
+  const [nopeSound, setNopeSound] = useState(null);
 
   // Función de barajado (Fisher-Yates)
   const shuffleArray = (array) => {
@@ -41,7 +44,34 @@ const Pets = () => {
     };
 
     fetchAnimals();
+    loadSounds();
+
+    return () => {
+      if (likeSound) {
+        likeSound.unloadAsync();
+      }
+      if (nopeSound) {
+        nopeSound.unloadAsync();
+      }
+    };
   }, []);
+
+  const loadSounds = async () => {
+    const { sound: like } = await Audio.Sound.createAsync(
+      require('../../../assets/sounds/Swipe1.mp3')
+    );
+    const { sound: nope } = await Audio.Sound.createAsync(
+      require('../../../assets/sounds/Swipe1.mp3')
+    );
+    setLikeSound(like);
+    setNopeSound(nope);
+  };
+
+  const playSound = async (sound) => {
+    if (sound) {
+      await sound.replayAsync();
+    }
+  };
 
   const rotate = position.x.interpolate({
     inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
@@ -88,6 +118,7 @@ const Pets = () => {
     },
     onPanResponderRelease: (evt, gestureState) => {
       if (gestureState.dx > 120) {
+        playSound(likeSound);
         Animated.spring(position, {
           toValue: { x: SCREEN_WIDTH + 100, y: gestureState.dy },
           useNativeDriver: true
@@ -96,6 +127,7 @@ const Pets = () => {
           position.setValue({ x: 0, y: 0 });
         });
       } else if (gestureState.dx < -120) {
+        playSound(nopeSound);
         Animated.spring(position, {
           toValue: { x: -SCREEN_WIDTH - 100, y: gestureState.dy },
           useNativeDriver: true
