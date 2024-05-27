@@ -168,6 +168,12 @@ const Pets = () => {
               style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 20 }}
               source={{ uri: item.image }}
             />
+            <View style={styles.cardTextContainer}>
+              <Text style={styles.cardText}>{item.name}</Text>
+              <Text style={styles.cardText}>{item.location}</Text>
+              <Text style={styles.cardText}>{item.age} años</Text>
+              <Text style={styles.cardText}>{item.description}</Text>
+            </View>
           </Animated.View>
         );
       } else {
@@ -184,6 +190,12 @@ const Pets = () => {
               style={{ flex: 1, height: null, width: null, resizeMode: 'cover', borderRadius: 20 }}
               source={{ uri: item.image }}
             />
+            <View style={styles.cardTextContainer}>
+              <Text style={styles.cardText}>{item.name}</Text>
+              <Text style={styles.cardText}>{item.location}</Text>
+              <Text style={styles.cardText}>{item.age} años</Text>
+              <Text style={styles.cardText}>{item.description}</Text>
+            </View>
           </Animated.View>
         );
       }
@@ -209,5 +221,19 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  cardTextContainer: {
+    position: 'absolute',
+    bottom: 20,
+    left: 20,
+    right: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    padding: 10,
+    borderRadius: 10,
+  },
+  cardText: {
+    color: 'white',
+    fontSize: 18,
+    marginBottom: 5,
   },
 });
