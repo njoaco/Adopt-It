@@ -72,3 +72,7 @@ Adopt.It es una plataforma interactiva diseñada para facilitar el proceso de ad
 ## Reportar Problemas
 
 Si encuentras problemas o tienes sugerencias de mejoras, por favor reporta esto utilizando el sistema de 'issues' de GitHub. Intenta describir el problema o la sugerencia de la forma más detallada posible, y etiqueta tu issue adecuadamente.
+
+## Licencia
+
+Este proyecto está licenciado bajo la [Custom Contribution License](LICENSE.md) - ver el archivo LICENSE.md para más detalles.
