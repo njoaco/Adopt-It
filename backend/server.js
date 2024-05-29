@@ -178,6 +178,56 @@ const upload = multer({
         });
     });
     
+// Endpoint para manejar likes
+app.post('/like', async (req, res) => {
+    const { animalId, likedBy } = req.body;
+
+    // Obtener el email del propietario del animal y el nombre de la mascota
+    db.query('SELECT publishBy, name FROM animals WHERE id = ?', [animalId], (err, results) => {
+        if (err) {
+            console.error('Error fetching animal owner:', err);
+            return res.status(500).send(err);
+        }
+        if (results.length > 0) {
+            const ownerEmail = results[0].publishBy;
+            const animalName = results[0].name;
+
+            // Insertar el like en la base de datos
+            db.query('INSERT INTO likes (animal_id, liked_by) VALUES (?, ?)', [animalId, likedBy], (err, results) => {
+                if (err) {
+                    console.error('Error inserting like:', err);
+                    return res.status(500).send(err);
+                }
+
+                // Registrar la notificación para el propietario del animal
+                const message = `${likedBy} le dio like a tu mascota ${animalName}`;
+                db.query('INSERT INTO notifications (user_email, message) VALUES (?, ?)', [ownerEmail, message], (err, results) => {
+                    if (err) {
+                        console.error('Error inserting notification:', err);
+                        return res.status(500).send(err);
+                    }
+                    res.status(200).send('Like registrado y notificación enviada.');
+                });
+            });
+        } else {
+            res.status(404).send('Animal no encontrado.');
+        }
+    });
+});
+  
+// Endpoint para obtener notificaciones de un usuario
+app.get('/notifications', (req, res) => {
+    const { email } = req.query;
+
+    db.query('SELECT message FROM notifications WHERE user_email = ?', [email], (err, results) => {
+        if (err) {
+            console.error('Error fetching notifications:', err);
+            return res.status(500).send(err);
+        }
+        res.status(200).json(results);
+    });
+});
+    
 }
 
 app.listen(port, '0.0.0.0', () => console.log(`Servidor escuchando en todas las interfaces`));

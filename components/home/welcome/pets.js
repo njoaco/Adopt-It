@@ -4,10 +4,8 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Audio } from 'expo-av';
 
-const aspectRatio = 2 / 3; // Por ejemplo, 2:3
 const SCREEN_HEIGHT = Dimensions.get('window').height;
 const SCREEN_WIDTH = Dimensions.get('window').width;
-import Icon from 'react-native-vector-icons/Ionicons';
 
 const Pets = () => {
   const [animals, setAnimals] = useState([]);
@@ -73,6 +71,15 @@ const Pets = () => {
     }
   };
 
+  const handleLike = async (animalId) => {
+    const userEmail = await AsyncStorage.getItem('userEmail');
+    try {
+      await axios.post('http://192.168.1.5:3000/like', { animalId, likedBy: userEmail });
+    } catch (error) {
+      console.error('Error registrando el like:', error);
+    }
+  };
+
   const rotate = position.x.interpolate({
     inputRange: [-SCREEN_WIDTH / 2, 0, SCREEN_WIDTH / 2],
     outputRange: ['-10deg', '0deg', '10deg'],
@@ -119,6 +126,7 @@ const Pets = () => {
     onPanResponderRelease: (evt, gestureState) => {
       if (gestureState.dx > 120) {
         playSound(likeSound);
+        handleLike(animals[currentIndex].id);
         Animated.spring(position, {
           toValue: { x: SCREEN_WIDTH + 100, y: gestureState.dy },
           useNativeDriver: true
