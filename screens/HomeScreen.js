@@ -55,6 +55,10 @@ const HomeScreen = () => {
         navigation.navigate('AccountScreen');
     }
 
+    const handleChatPress = () => {
+        navigation.navigate('Chat');
+    };
+
     React.useLayoutEffect(() => {
         navigation.setOptions({
             headerTitle: 'Adopt.It',
@@ -96,6 +100,9 @@ const HomeScreen = () => {
                             {notifications.map((notification, index) => (
                                 <View key={index} style={styles.notification}>
                                     <Text style={styles.notificationText}>{notification.message}</Text>
+                                    <TouchableOpacity style={styles.chatButton} onPress={handleChatPress}>
+                                        <Text style={styles.chatButtonText}>Chat</Text>
+                                    </TouchableOpacity>
                                 </View>
                             ))}
                         </View>
@@ -154,9 +161,22 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.8,
         shadowRadius: 2,
         elevation: 5,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
     },
     notificationText: {
         fontSize: 16,
+        flex: 1,
+    },
+    chatButton: {
+        backgroundColor: COLORS.primary,
+        padding: 5,
+        borderRadius: 5,
+    },
+    chatButtonText: {
+        color: COLORS.white,
+        fontSize: 14,
     },
     petsContainer: {
         flex: 1,
