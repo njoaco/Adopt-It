@@ -1,6 +1,10 @@
+<p align="center">
+  <img src="./assets/logo_github.png" alt="logo" width="200" />
+</p>
+
 # Adopt.It
 
-Adopt.It es una plataforma interactiva diseñada para facilitar el proceso de adopción de mascotas. Utilizando tecnologías modernas como JavaScript, React, MySQL y Expo, esta aplicación móvil ofrece una interfaz amigable tanto para quienes desean encontrar un nuevo hogar para sus mascotas, como para aquellos que buscan adoptar.
+Adopt.It es una plataforma interactiva diseñada para facilitar el proceso de adopción de mascotas. Utilizando tecnologías modernas como JavaScript, React, MySQL, AWS S3 y Expo, esta aplicación móvil ofrece una interfaz amigable tanto para quienes desean encontrar un nuevo hogar para sus mascotas, como para aquellos que buscan adoptar.
 
 ## Características
 
@@ -13,9 +17,17 @@ Adopt.It es una plataforma interactiva diseñada para facilitar el proceso de ad
 ## Tecnologías Utilizadas
 
 - **Frontend:** React (incluyendo React Navigation para la gestión de rutas en la app)
-- **Backend:** Node.js con un servidor Express para manejar las solicitudes API.
+- **Backend:** Node.js con un servidor Express para manejar las solicitudes API y AWS S3 para manejar la subida de archivos.
 - **Base de Datos:** MySQL para almacenamiento de datos de usuarios y mascotas.
 - **Plataforma de Desarrollo Móvil:** Expo para asegurar compatibilidad cruzada en dispositivos iOS y Android.
+
+## Capturas de pantalla
+<p align="center">
+  <img src="./assets/screenshots/S1.png" alt="screenshot" width="400" />
+  <img src="./assets/screenshots/S2.png" alt="screenshot" width="400" />
+  <img src="./assets/screenshots/S3.png" alt="screenshot" width="400" />
+  <img src="./assets/screenshots/S4.png" alt="screenshot" width="400" />
+</p>
 
 ## Cómo Contribuir
 
@@ -60,3 +72,7 @@ Adopt.It es una plataforma interactiva diseñada para facilitar el proceso de ad
 ## Reportar Problemas
 
 Si encuentras problemas o tienes sugerencias de mejoras, por favor reporta esto utilizando el sistema de 'issues' de GitHub. Intenta describir el problema o la sugerencia de la forma más detallada posible, y etiqueta tu issue adecuadamente.
+
+## Licencia
+
+Este proyecto está licenciado bajo la [Custom Contribution License](LICENSE.md) - ver el archivo LICENSE.md para más detalles.

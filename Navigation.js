@@ -8,6 +8,7 @@ import AccountScreen from "./screens/AccountScreen";
 import ShareScreen from "./screens/ShareScreen";
 import NotificationsScreen from "./screens/NotificationsScreen";
 import LoginScreen from "./screens/LoginScreen";
+import ChatScreen from "./screens/ChatScreen"; // Importa la pantalla de Chat
 
 import { Fontisto } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
@@ -17,29 +18,29 @@ const Tab = createBottomTabNavigator();
 const HomeStackNavigator = createNativeStackNavigator();
 const Stack = createNativeStackNavigator();
 
-function MyStack(){
-    return(
+function MyStack() {
+    return (
         <HomeStackNavigator.Navigator
             initialRouteName="HomeScreen"
         >
             <HomeStackNavigator.Screen
-            
                 name="HomeScreen"
                 component={HomeScreen}
             />
-
             <HomeStackNavigator.Screen
-            
-            name="Stack"
-            component={NotificationsScreen}
-
+                name="Stack"
+                component={NotificationsScreen}
+            />
+            <HomeStackNavigator.Screen
+                name="Chat"
+                component={ChatScreen} // Agrega la pantalla de Chat
             />
         </HomeStackNavigator.Navigator>
-    )
+    );
 }
 
-function MyTabs(){
-    return(
+function MyTabs() {
+    return (
         <Tab.Navigator
             initialRouteName="Home"
             screenOptions={{
@@ -47,7 +48,7 @@ function MyTabs(){
             }}
         >
             <Tab.Screen
-                name="Home" 
+                name="Home"
                 component={MyStack}
                 options={{
                     tabBarIcon: ({ color, size }) => (
@@ -57,8 +58,8 @@ function MyTabs(){
                     headerShown: false,
                 }}
             />
-            <Tab.Screen 
-                name="Compartir" 
+            <Tab.Screen
+                name="Compartir"
                 component={ShareScreen}
                 options={{
                     tabBarIcon: ({ color, size }) => (
@@ -66,8 +67,8 @@ function MyTabs(){
                     ),
                 }}
             />
-            <Tab.Screen 
-                name="Cuenta" 
+            <Tab.Screen
+                name="Cuenta"
                 component={AccountScreen}
                 options={{
                     tabBarIcon: ({ color, size }) => (
@@ -76,16 +77,14 @@ function MyTabs(){
                 }}
             />
         </Tab.Navigator>
-
-        
     );
 }
 
-function Cuenta(){
-    return(
+function Cuenta() {
+    return (
         <Tab.Navigator>
-            <Tab.Screen 
-                name="Cuenta" 
+            <Tab.Screen
+                name="Cuenta"
                 component={AccountScreen}
                 options={{
                     tabBarIcon: ({ color, size }) => (
@@ -95,21 +94,20 @@ function Cuenta(){
                 }}
             />
         </Tab.Navigator>
-
     );
 }
 
-export default function Navigation(){
-    return(
+export default function Navigation() {
+    return (
         <NavigationContainer>
             <Stack.Navigator initialRouteName="LoginScreen">
-                <Stack.Screen     
-                options={{
-                    headerShown: false,
-                }} 
-                name="LoginScreen" component={LoginScreen} />
-                <Stack.Screen name="MyTabs" component={MyTabs} options={{headerShown: false}}/>
-                <Stack.Screen name="Perfil" component={Cuenta} options={{headerShown: true}}/>
+                <Stack.Screen
+                    options={{
+                        headerShown: false,
+                    }}
+                    name="LoginScreen" component={LoginScreen} />
+                <Stack.Screen name="MyTabs" component={MyTabs} options={{ headerShown: false }} />
+                <Stack.Screen name="Perfil" component={Cuenta} options={{ headerShown: true }} />
             </Stack.Navigator>
         </NavigationContainer>
     );

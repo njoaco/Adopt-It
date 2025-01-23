@@ -1,10 +1,9 @@
-import React, { useState, useContext, useEffect} from "react";
-import { View, Text, StyleSheet, TextInput, Button, Image, ScrollView, Alert, TouchableOpacity} from "react-native";
+import React, { useState, useEffect} from "react";
+import { View, Text, StyleSheet, TextInput, Image, ScrollView, Alert, TouchableOpacity} from "react-native";
 import { useNavigation } from '@react-navigation/native';
 import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';  // Importa axios para hacer solicitudes HTTP
-import * as FileSystem from 'expo-file-system';
+import axios from 'axios'; 
 
 const ShareScreen = () => {
     const [petname, setPetname] = useState(""); 
@@ -12,11 +11,11 @@ const ShareScreen = () => {
     const [ubication, setUbication] = useState("");
     const [description, setDescription] = useState("");
     const [publishBy, setPublishBy] = useState("");  
-    const [image, setImage] = useState(); 
+    const [image, setImage] = useState();
+    const [age, setAge] = useState(""); 
     const [isButtonDisabled, setIsButtonDisabled] = useState(false); 
     const [isButtonDisabledSend, setIsButtonDisabledSend] = useState(true); 
     const navigation = useNavigation();
-    let fotoAvailable;
 
     useEffect(() => {
         AsyncStorage.getItem('userEmail')
@@ -41,31 +40,41 @@ const ShareScreen = () => {
             });
     }, []);
 
-
-    const handleImageSave = () => {        
+    const handleImageSave = async () => {
+        // Primero, subir la imagen a S3 y obtener la URL
+        const uploadedImageUrl = await uploadImage();
+        if (!uploadedImageUrl) {
+            Alert.alert("Error", "No se pudo subir la imagen a S3");
+            return; // Detener la ejecución si la subida de la imagen falla
+        }
+    
+        // Si la imagen se sube con éxito, proceder a enviar los detalles del animal
         axios.post('http://192.168.1.5:3000/animals', {
             name: petname,
             race: razaname,
+            age: age,
             location: ubication,
             description: description,
             publishBy: publishBy,
-            image: image
-          })
-          .then(response => {
-            Alert.alert("Éxito", "Mascota subida!");
-            //resetForm();
-          })
-          .catch(error => {
-            console.error('Error!', error);
-            Alert.alert("Error", "No se pudo subir la mascota.");
-          });
-        };
+            image: uploadedImageUrl  // URL de la imagen almacenada en S3
+        })
+        .then(response => {
+            Alert.alert("Exito", "Mascota subida!");
+            resetForm();
+        })
+        .catch(error => {
+            console.error('Error saving pet data:', error);
+            Alert.alert("Error", "Failed to upload pet.");
+        });
+    };
+    
     
       const resetForm = () => {
         setPetname("");
         setRazaname("");
         setUbication("");
         setDescription("");
+        setAge(null);
         setImage(null);
         setIsButtonDisabled(false);
         setIsButtonDisabledSend(true);
@@ -94,6 +103,13 @@ const ShareScreen = () => {
 
     const handleDescriptionChange = (text) => {
         setDescription(text); 
+    };
+
+    const handleAgeChange = (text) => {
+        const newAge = text.replace(/[^0-9]/g, '');
+        if (newAge === '' || (parseInt(newAge) > 0 && parseInt(newAge) < 100)) {
+            setAge(newAge);
+        }
     };
 
     const pickImage = async () => {
@@ -134,6 +150,42 @@ const ShareScreen = () => {
         }
     };
     
+    const uploadImage = async () => {
+        if (!image) {
+            Alert.alert("Error", "No image selected");
+            return null;
+        }
+
+        const uriParts = image.split('.');
+        const fileType = uriParts[uriParts.length - 1];
+
+        const formData = new FormData();
+        formData.append('file', {
+            uri: image,
+            name: `photo.${fileType}`,
+            type: `image/${fileType}`,
+        });
+
+        try {
+            const response = await axios.post('http://192.168.1.5:3000/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
+
+            if (response.status === 201) {
+                return response.data.imageUrl; // This is the URL of the image stored on S3
+            } else {
+                console.error('Upload failed');
+                Alert.alert("Error", "Failed to upload image");
+                return null;
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error);
+            Alert.alert("Error", "An error occurred while uploading image");
+            return null;
+        }
+    };
 
     return (
     <ScrollView>     
@@ -161,6 +213,15 @@ const ShareScreen = () => {
             onChangeText={handleRazanameChange}
             value={razaname}
           />
+
+            <Text style={styles.titles}>Edad</Text>
+            <TextInput
+                className="input w-3/4 bg-gray-100 rounded-lg p-1 my-2 border border-gray-300"
+                keyboardType="number-pad"
+                maxLength={2}
+                onChangeText={handleAgeChange}
+                value={age}
+            />
       
           <Text style={styles.titles}>Ubicación</Text>
           <TextInput
